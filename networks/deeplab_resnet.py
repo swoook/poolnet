@@ -183,18 +183,18 @@ class ResNet_locate(nn.Module):
         self.resnet.load_state_dict(model, strict=False)
 
     def forward(self, x):
-        x_size = x.size()[2:]
+        x_size = x.shape[2:]
         xs = self.resnet(x)
 
         xs_1 = self.ppms_pre(xs[-1])
         xls = [xs_1]
         for k in range(len(self.ppms)):
-            xls.append(F.interpolate(self.ppms[k](xs_1), xs_1.size()[2:], mode='bilinear', align_corners=True))
+            xls.append(F.interpolate(self.ppms[k](xs_1), xs_1.shape[2:], mode='bilinear', align_corners=True))
         xls = self.ppm_cat(torch.cat(xls, dim=1))
 
         infos = []
         for k in range(len(self.infos)):
-            infos.append(self.infos[k](F.interpolate(xls, xs[len(self.infos) - 1 - k].size()[2:], mode='bilinear', align_corners=True)))
+            infos.append(self.infos[k](F.interpolate(xls, xs[len(self.infos) - 1 - k].shape[2:], mode='bilinear', align_corners=True)))
 
         return xs, infos
 

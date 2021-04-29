@@ -46,14 +46,14 @@ class DeepPoolLayer(nn.Module):
             self.conv_sum_c = nn.Conv2d(k_out, k_out, 3, 1, 1, bias=False)
 
     def forward(self, x, x2=None, x3=None):
-        x_size = x.size()
+        x_size = x.shape
         resl = x
         for i in range(len(self.pools_sizes)):
             y = self.convs[i](self.pools[i](x))
             resl = torch.add(resl, F.interpolate(y, x_size[2:], mode='bilinear', align_corners=True))
         resl = self.relu(resl)
         if self.need_x2:
-            resl = F.interpolate(resl, x2.size()[2:], mode='bilinear', align_corners=True)
+            resl = F.interpolate(resl, x2.shape[2:], mode='bilinear', align_corners=True)
         resl = self.conv_sum(resl)
         if self.need_fuse:
             resl = self.conv_sum_c(torch.add(torch.add(resl, x2), x3))
@@ -97,7 +97,7 @@ class PoolNet(nn.Module):
             self.convert = convert_layers
 
     def forward(self, x):
-        x_size = x.size()
+        x_size = x.shape
         conv2merge, infos = self.base(x)
         if self.base_model_cfg == 'resnet':
             conv2merge = self.convert(conv2merge)
