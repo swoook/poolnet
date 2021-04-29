@@ -1,3 +1,7 @@
+# ❗ This is cloned repository!
+
+This repository is cloned from [backseason/PoolNet](https://github.com/backseason/PoolNet) and modified for research
+
 ## A Simple Pooling-Based Design for Real-Time Salient Object Detection
 
 ### This is a PyTorch implementation of our CVPR 2019 [paper](https://arxiv.org/abs/1904.09569).
