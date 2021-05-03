@@ -4,12 +4,20 @@ This repository is cloned from [backseason/PoolNet](https://github.com/backseaso
 
 ## A Simple Pooling-Based Design for Real-Time Salient Object Detection
 
-### This is a PyTorch implementation of our CVPR 2019 [paper](https://arxiv.org/abs/1904.09569).
+This is a PyTorch implementation of our CVPR 2019 [paper](https://arxiv.org/abs/1904.09569).
+
+## Development Environments
+
+- [*conda-py38torch17.yml*](conda-py38torch17.yml) is appropriate if you'd like to use this repository on conda environment
+- Please refer to [Managing environments — conda documentation](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html?highlight=yml file#creating-an-environment-from-an-environment-yml-file) for more details
 
 ## Prerequisites
 
-- [Pytorch 0.4.1+](http://pytorch.org/)
-- [torchvision](http://pytorch.org/)
+```
+cudatoolkit>=10.1.0
+torch>=1.7.0
+torchvision>=0.8.0
+```
 
 ## Update
 
@@ -17,29 +25,59 @@ This repository is cloned from [backseason/PoolNet](https://github.com/backseaso
 2. You may refer to this repo for results evaluation: [SalMetric](https://github.com/Andrew-Qibin/SalMetric).
 
 
-## Usage
+## Installation
 
-### 1. Clone the repository
+1. Clone the repository
 
-```shell
-git clone https://github.com/backseason/PoolNet.git
-cd PoolNet/
-```
+   ```shell
+   $ git clone https://github.com/backseason/PoolNet.git
+   $ cd ./PoolNet/
+   ```
 
-### 2. Download the datasets
+2. Create the conda environment
+
+   ```shell
+   $ conda env create -f ${REPO_ROOT}/dev-envs/conda-py38torch17.yml
+   ```
+
+## Data Preparation
 
 Download the following datasets and unzip them into `data` folder.
 
-* [MSRA-B and HKU-IS](https://drive.google.com/open?id=14RA-qr7JxU6iljLv6PbWUCQG0AJsEgmd) dataset. The .lst file for training is `data/msrab_hkuis/msrab_hkuis_train_no_small.lst`.
-* [DUTS](https://drive.google.com/open?id=1immMDAPC9Eb2KCtGi6AdfvXvQJnSkHHo) dataset. The .lst file for training is `data/DUTS/DUTS-TR/train_pair.lst`.
-* [BSDS-PASCAL](https://drive.google.com/open?id=1qx8eyDNAewAAc6hlYHx3B9LXvEGSIqQp) dataset. The .lst file for training is `./data/HED-BSDS_PASCAL/bsds_pascal_train_pair_r_val_r_small.lst`.
+* [MSRA-B and HKU-IS](https://drive.google.com/open?id=14RA-qr7JxU6iljLv6PbWUCQG0AJsEgmd) dataset. The *.lst* file for training is `data/msrab_hkuis/msrab_hkuis_train_no_small.lst`.
+* [DUTS](https://drive.google.com/open?id=1immMDAPC9Eb2KCtGi6AdfvXvQJnSkHHo) dataset. The *.lst* file for training is `data/DUTS/DUTS-TR/train_pair.lst`.
+* [BSDS-PASCAL](https://drive.google.com/open?id=1qx8eyDNAewAAc6hlYHx3B9LXvEGSIqQp) dataset. The *.lst* file for training is `./data/HED-BSDS_PASCAL/bsds_pascal_train_pair_r_val_r_small.lst`.
 * [Datasets for testing](https://drive.google.com/open?id=1eB-59cMrYnhmMrz7hLWQ7mIssRaD-f4o).
 
-### 3. Download the pre-trained models for backbone
+## Pre-trained Models
 
-Download the following pre-trained models [GoogleDrive](https://drive.google.com/open?id=1Q2Fg2KZV8AzNdWNjNgcavffKJBChdBgy) | [BaiduYun](https://pan.baidu.com/s/1ehZheaqeU3pyvYQfRU9c6A) (pwd: **27p5**) into `dataset/pretrained` folder. 
+1. PoolNet-ResNet50 w/o edge model [GoogleDrive](https://drive.google.com/open?id=12Zgth_CP_kZPdXwnBJOu4gcTyVgV2Nof) | [BaiduYun](https://pan.baidu.com/s/1m3BXHZt5PJO5lEdWF0MqBA ) (pwd: **2uln**).
+2. PoolNet-ResNet50 w/ edge model (best performance) [GoogleDrive](https://drive.google.com/open?id=1sH5RKEt6SnG33Z4sI-hfLs2d21GmegwR) | [BaiduYun](https://pan.baidu.com/s/10AXBYc_YY3FYcEbCWX6f-A) (pwd: **ksii**).
+3. PoolNet-VGG16 w/ edge model (pre-computed maps) [GoogleDrive](https://drive.google.com/open?id=1jbNyNUJFZPb_jhwkm_D70gsxXgbbv_S1) | [BaiduYun](https://pan.baidu.com/s/1gcl-BVwn1YZpaOV3XNxeBQ) (pwd: **3wgc**).
+4. *Unspecified* [GoogleDrive](https://drive.google.com/open?id=1Q2Fg2KZV8AzNdWNjNgcavffKJBChdBgy) | [BaiduYun](https://pan.baidu.com/s/1ehZheaqeU3pyvYQfRU9c6A) (pw: **27p5**).
 
-### 4. Train
+:hand: Note
+
+1. only support `bath_size=1`
+2. Except for the backbone we do not use BN layer.
+
+## Demo
+
+* Execute the command below:
+
+```shell
+$ python ${REPO_ROOT}/inspect.py --runmode infer --model_path ${PTH_PATH} --input_img_path ${INPUT_IMG_PATH} --output_img_path ${OUTPUT_IMG_PATH}
+```
+
+## FPS Benchmark
+
+* Execute the command below for CPU:
+
+```shell
+$ python ${REPO_ROOT}/inspect.py --runmode fps --model_path ${PTH_PATH} --input_img_path ${INPUT_IMG_PATH} --cpu
+```
+
+## Training
 
 1. Set the `--train_root` and `--train_list` path in `train.sh` correctly.
 
@@ -53,7 +91,7 @@ Download the following pre-trained models [GoogleDrive](https://drive.google.com
 ```
 4. After training the result model will be stored under `results/run-*` folder.
 
-### 5. Test
+## Test
 
 For single dataset testing: `*` changes accordingly and `--sal_mode` indicates different datasets (details can be found in `main.py`)
 ```shell
@@ -74,24 +112,11 @@ to get edge detection results use
 
 All results saliency maps will be stored under `results/run-*-sal-*` folders in .png formats.
 
-
-### 6. Pre-trained models, pre-computed results and evaluation results
-
-We provide the pre-trained model, pre-computed saliency maps and evaluation results for:
-1. PoolNet-ResNet50 w/o edge model [GoogleDrive](https://drive.google.com/open?id=12Zgth_CP_kZPdXwnBJOu4gcTyVgV2Nof) | [BaiduYun](https://pan.baidu.com/s/1m3BXHZt5PJO5lEdWF0MqBA ) (pwd: **2uln**).
-2. PoolNet-ResNet50 w/ edge model (best performance) [GoogleDrive](https://drive.google.com/open?id=1sH5RKEt6SnG33Z4sI-hfLs2d21GmegwR) | [BaiduYun](https://pan.baidu.com/s/10AXBYc_YY3FYcEbCWX6f-A) (pwd: **ksii**).
-3. PoolNet-VGG16 w/ edge model (pre-computed maps) [GoogleDrive](https://drive.google.com/open?id=1jbNyNUJFZPb_jhwkm_D70gsxXgbbv_S1) | [BaiduYun](https://pan.baidu.com/s/1gcl-BVwn1YZpaOV3XNxeBQ) (pwd: **3wgc**).
-
-Note：
-
-1. only support `bath_size=1`
-2. Except for the backbone we do not use BN layer.
-
-### 7. Contact
+## Contact
 If you have any questions, feel free to contact me via: `j04.liu(at)gmail.com`.
 
 
-### If you think this work is helpful, please cite
+## Citation
 ```latex
 @inproceedings{Liu2019PoolSal,
   title={A Simple Pooling-Based Design for Real-Time Salient Object Detection},
