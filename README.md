@@ -53,7 +53,7 @@ Download the following datasets and unzip them into `data` folder.
 
 | Models                                                       | FPS                         |
 | ------------------------------------------------------------ | --------------------------- |
-| PoolNet-ResNet50 w/o edge model [GoogleDrive](https://drive.google.com/open?id=12Zgth_CP_kZPdXwnBJOu4gcTyVgV2Nof) \| [BaiduYun](https://pan.baidu.com/s/1m3BXHZt5PJO5lEdWF0MqBA ) (pwd: **2uln**). | 1.23 (CPU)<br />29.22 (GPU) |
+| PoolNet-ResNet50 w/o edge model [GoogleDrive](https://drive.google.com/open?id=12Zgth_CP_kZPdXwnBJOu4gcTyVgV2Nof) \| [BaiduYun](https://pan.baidu.com/s/1m3BXHZt5PJO5lEdWF0MqBA ) (pwd: **2uln**). | 1.29 (CPU)<br />29.82 (GPU) |
 | PoolNet-ResNet50 w/ edge model (best performance) [GoogleDrive](https://drive.google.com/open?id=1sH5RKEt6SnG33Z4sI-hfLs2d21GmegwR) \| [BaiduYun](https://pan.baidu.com/s/10AXBYc_YY3FYcEbCWX6f-A) (pwd: **ksii**). | -                           |
 | PoolNet-VGG16 w/ edge model (pre-computed maps) [GoogleDrive](https://drive.google.com/open?id=1jbNyNUJFZPb_jhwkm_D70gsxXgbbv_S1) \| [BaiduYun](https://pan.baidu.com/s/1gcl-BVwn1YZpaOV3XNxeBQ) (pwd: **3wgc**). | -                           |
 | *Unspecified* [GoogleDrive](https://drive.google.com/open?id=1Q2Fg2KZV8AzNdWNjNgcavffKJBChdBgy) \| [BaiduYun](https://pan.baidu.com/s/1ehZheaqeU3pyvYQfRU9c6A) (pw: **27p5**). | -                           |
@@ -72,7 +72,7 @@ FPS on GPU is measured with batch size **1** on **RTX 2080Ti GPU**.
 * Execute the command below:
 
 ```shell
-$ python ${REPO_ROOT}/inspect.py --runmode infer --model_path ${PTH_PATH} --input_img_path ${INPUT_IMG_PATH} --output_img_path ${OUTPUT_IMG_PATH}
+$ python ${REPO_ROOT}/model_inspect.py --runmode infer --model_path ${PTH_PATH} --input_img_path ${INPUT_IMG_PATH} --output_img_path ${OUTPUT_IMG_PATH}
 ```
 
 ## FPS Benchmark
@@ -80,7 +80,7 @@ $ python ${REPO_ROOT}/inspect.py --runmode infer --model_path ${PTH_PATH} --inpu
 * Execute the command below for CPU:
 
 ```shell
-$ python ${REPO_ROOT}/inspect.py --runmode fps --model_path ${PTH_PATH} --input_img_path ${INPUT_IMG_PATH} --cpu
+$ python ${REPO_ROOT}/model_inspect.py --runmode fps --model_path ${PTH_PATH} --input_img_path ${INPUT_IMG_PATH} --cpu
 ```
 
 ## Training
