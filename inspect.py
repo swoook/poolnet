@@ -66,18 +66,23 @@ class Inspector(object):
             input_data = Variable(input_data)
             if self.config.cuda:  input_data = input_data.cuda()
             preds = self.net(input_data)
+
+        for _ in range(30):
+            preds = self.net(input_data)
+            pred = 255 * np.squeeze(torch.sigmoid(preds).cpu().data.numpy())
         
         time_s = time.perf_counter()
         for _ in range(30):
             preds = self.net(input_data)
-            pred = np.squeeze(torch.sigmoid(preds).cpu().data.numpy())
-            multi_fuse = 255 * pred
+            pred = 255 * np.squeeze(torch.sigmoid(preds).cpu().data.numpy())
+        torch.cuda.synchronize()
         time_end = time.perf_counter()
-        inference_time = (time_end - time_s) / 10
+        inference_time = (time_end - time_s) / 30
         print('FPS: {}'.format((1/inference_time)))
         
 
 def main(config):
+    torch.cuda.set_device(1)
     inspector = Inspector(config)
     if config.runmode == 'infer':
         inspector.infer(config.input_img_path, config.output_img_path)
