@@ -58,9 +58,11 @@ Download the following datasets and unzip them into `data` folder.
 | PoolNet-VGG16 w/ edge model (pre-computed maps) [GoogleDrive](https://drive.google.com/open?id=1jbNyNUJFZPb_jhwkm_D70gsxXgbbv_S1) \| [BaiduYun](https://pan.baidu.com/s/1gcl-BVwn1YZpaOV3XNxeBQ) (pwd: **3wgc**). | -                           |
 | *Unspecified* [GoogleDrive](https://drive.google.com/open?id=1Q2Fg2KZV8AzNdWNjNgcavffKJBChdBgy) \| [BaiduYun](https://pan.baidu.com/s/1ehZheaqeU3pyvYQfRU9c6A) (pw: **27p5**). | -                           |
 
-FPS on CPU is measured with batch size **1** on **Threadripper 2950X CPU**.
+**FPS** is measured including pre/post-processing with batch size **1** .
 
-FPS on GPU is measured with batch size **1** on **RTX 2080Ti GPU**.
+**FPS on CPU** is measured on **Threadripper 2950X CPU**.
+
+**FPS on GPU** is measured on **RTX 2080Ti GPU**.
 
 :hand: Note
 
