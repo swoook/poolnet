@@ -160,16 +160,34 @@ class ResNet_locate(nn.Module):
         self.in_planes = 512
         self.out_planes = [512, 256, 256, 128]
 
+        ####################################
+        # PPM (Pyramid Pooling Module)
+        # point-wise convolution to reduce #channel to $self.in_planes
         self.ppms_pre = nn.Conv2d(2048, self.in_planes, 1, 1, bias=False)
-        ppms, infos = [], []
+        # four sub-branches at different scales
+        # 1. identity mapping layer
+        # 2. adaptive average pooling layer with output spatial sizes of 3X3
+        # 3. adaptive average pooling layer with output spatial sizes of 5X5
+        # 4. global average pooling layer
+        # 1 is naturally implemented via $self.ppms_pre
+        # [1, 3, 5] indicates 4, 3, 2, respectively
+        # UPSAMPLE is implemented in $forward(self, x)
+        ppms = []
         for ii in [1, 3, 5]:
             ppms.append(nn.Sequential(nn.AdaptiveAvgPool2d(ii), nn.Conv2d(self.in_planes, self.in_planes, 1, 1, bias=False), nn.ReLU(inplace=True)))
         self.ppms = nn.ModuleList(ppms)
-
+        # CONV after UPSAMLE
+        # It's a 3x3 convolution to reduce #channel to $self.in_planes
         self.ppm_cat = nn.Sequential(nn.Conv2d(self.in_planes * 4, self.in_planes, 3, 1, 1, bias=False), nn.ReLU(inplace=True))
+        ####################################
+
+        ####################################
+        # Featuremaps for GGF (Global Guidance Flow)
+        infos = []
         for ii in self.out_planes:
             infos.append(nn.Sequential(nn.Conv2d(self.in_planes, ii, 3, 1, 1, bias=False), nn.ReLU(inplace=True)))
         self.infos = nn.ModuleList(infos)
+        ####################################
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -186,12 +204,22 @@ class ResNet_locate(nn.Module):
         x_size = x.shape[2:]
         xs = self.resnet(x)
 
+        ####################################
+        # PPM (Pyramid Pooling Module)
+        # Recall that we apply a FPN to our backbone
+        # $xs[-1] is the most-top one of FPN outputs
+        # I.e. The PPM takes the last one of FPN outputs as input
         xs_1 = self.ppms_pre(xs[-1])
+        # UPSAMPLE from the PPM
         xls = [xs_1]
         for k in range(len(self.ppms)):
             xls.append(F.interpolate(self.ppms[k](xs_1), xs_1.shape[2:], mode='bilinear', align_corners=True))
+        # Merge the outputs at different scales
         xls = self.ppm_cat(torch.cat(xls, dim=1))
+        ####################################
 
+        ####################################
+        # $info is one of inputs of FAM from GGFs
         infos = []
         for k in range(len(self.infos)):
             infos.append(self.infos[k](F.interpolate(xls, xs[len(self.infos) - 1 - k].shape[2:], mode='bilinear', align_corners=True)))

@@ -10,9 +10,31 @@ from .deeplab_resnet import resnet50_locate
 from .vgg import vgg16_locate
 
 
-config_vgg = {'convert': [[128,256,512,512,512],[64,128,256,512,512]], 'deep_pool': [[512, 512, 256, 128], [512, 256, 128, 128], [True, True, True, False], [True, True, True, False]], 'score': 128}  # no convert layer, no conv6
+config_vgg = {
+    'convert': [
+        [128,256,512,512,512],
+        [64,128,256,512,512]
+        ], 
+    'deep_pool': [
+        [512, 512, 256, 128], [512, 256, 128, 128], 
+        [True, True, True, False], [True, True, True, False]
+        ], 
+    'score': 128
+    }  # no convert layer, no conv6
 
-config_resnet = {'convert': [[64,256,512,1024,2048],[128,256,256,512,512]], 'deep_pool': [[512, 512, 256, 256, 128], [512, 256, 256, 128, 128], [False, True, True, True, False], [True, True, True, True, False]], 'score': 128}
+config_resnet = {
+    'convert': [
+        [64,256,512,1024,2048],
+        [128,256,256,512,512]
+        ], 
+    'deep_pool': [
+        [512, 512, 256, 256, 128], 
+        [512, 256, 256, 128, 128], 
+        [False, True, True, True, False], 
+        [True, True, True, True, False]
+        ], 
+    'score': 128
+    }
 
 class ConvertLayer(nn.Module):
     def __init__(self, list_k):
@@ -28,6 +50,7 @@ class ConvertLayer(nn.Module):
             resl.append(self.convert0[i](list_x[i]))
         return resl
 
+# FAM (Feature Aggregation Module)
 class DeepPoolLayer(nn.Module):
     def __init__(self, k, k_out, need_x2, need_fuse):
         super(DeepPoolLayer, self).__init__()
@@ -50,6 +73,7 @@ class DeepPoolLayer(nn.Module):
         resl = x
         for i in range(len(self.pools_sizes)):
             y = self.convs[i](self.pools[i](x))
+            # sum from FAM
             resl = torch.add(resl, F.interpolate(y, x_size[2:], mode='bilinear', align_corners=True))
         resl = self.relu(resl)
         if self.need_x2:
