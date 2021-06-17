@@ -32,6 +32,7 @@ class vgg16(nn.Module):
     def __init__(self):
         super(vgg16, self).__init__()
         self.cfg = {'tun': [64, 64, 'M', 128, 128, 'M', 256, 256, 256, 'M', 512, 512, 512, 'M', 512, 512, 512, 'M'], 'tun_ex': [512, 512, 512]}
+        # 
         self.extract = [8, 15, 22, 29] # [3, 8, 15, 22, 29]
         self.base = nn.ModuleList(vgg(self.cfg['tun'], 3))
         for m in self.modules():

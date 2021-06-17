@@ -24,6 +24,7 @@ config_vgg = {
 
 config_resnet = {
     'convert': [
+        # C1 64 - 
         [64,256,512,1024,2048],
         [128,256,256,512,512]
         ], 
@@ -50,7 +51,7 @@ class ConvertLayer(nn.Module):
             resl.append(self.convert0[i](list_x[i]))
         return resl
 
-# FAM (Feature Aggregation Module)
+# ?
 class DeepPoolLayer(nn.Module):
     def __init__(self, k, k_out, need_x2, need_fuse):
         super(DeepPoolLayer, self).__init__()
@@ -114,14 +115,24 @@ class PoolNet(nn.Module):
     def __init__(self, base_model_cfg, base, convert_layers, deep_pool_layers, score_layers):
         super(PoolNet, self).__init__()
         self.base_model_cfg = base_model_cfg
+        # $self.base is one of {ResNet_locate, vgg16_locate}
         self.base = base
+        # $self.deep_pool
         self.deep_pool = nn.ModuleList(deep_pool_layers)
         self.score = score_layers
+        # $self.convert reduces #channel of {C1, C2, C3, C4, C5} 
+        # to be same with corresponding bottom-map and feature maps from the GGF
         if self.base_model_cfg == 'resnet':
             self.convert = convert_layers
 
     def forward(self, x):
         x_size = x.shape
+        # $conv2merge is {C1, C2, C3, C4, C5} of ResNet-FPN
+        # $infos is a set of inputs of FAM from GGFs
+        # $infos[0] has a same spatial size with P4
+        # $infos[1] has a same spatial size with P3
+        # $infos[2] has a same spatial size with P2
+        # $infos[3] has a same spatial size with P1
         conv2merge, infos = self.base(x)
         if self.base_model_cfg == 'resnet':
             conv2merge = self.convert(conv2merge)

@@ -134,10 +134,18 @@ class ResNet(nn.Module):
         return nn.Sequential(*layers)
 
     def forward(self, x):
+        ####################################
+        # FPN (Feature Pyramid)
+        # Differences between implementations and the paper: #lateral_connections
+        # In arXiv:​1612.03144, there are four lateral connections from the ResNet101 backbone.
+        # And the paper also shows there are four lateral connections.
+        # However, this implementation shows five lateral connections.
+        # Specifically, newly added lateral connection is the $conv1 
         tmp_x = []
         x = self.conv1(x)
         x = self.bn1(x)
         x = self.relu(x)
+        # newly added lateral connection
         tmp_x.append(x)
         x = self.maxpool(x)
 
@@ -151,6 +159,7 @@ class ResNet(nn.Module):
         tmp_x.append(x)
 
         return tmp_x
+        ####################################
 
 
 class ResNet_locate(nn.Module):
@@ -161,9 +170,13 @@ class ResNet_locate(nn.Module):
         self.out_planes = [512, 256, 256, 128]
 
         ####################################
-        # PPM (Pyramid Pooling Module)
-        # point-wise convolution to reduce #channel to $self.in_planes
+        # FPN (Feature Pyramid)
+        # point-wise convolution to compute P5
         self.ppms_pre = nn.Conv2d(2048, self.in_planes, 1, 1, bias=False)
+        ####################################
+
+        ####################################
+        # PPM (Pyramid Pooling Module)
         # four sub-branches at different scales
         # 1. identity mapping layer
         # 2. adaptive average pooling layer with output spatial sizes of 3X3
@@ -207,19 +220,23 @@ class ResNet_locate(nn.Module):
         ####################################
         # PPM (Pyramid Pooling Module)
         # Recall that we apply a FPN to our backbone
-        # $xs[-1] is the most-top one of FPN outputs
-        # I.e. The PPM takes the last one of FPN outputs as input
+        # $xs[-1] is the C5 of ResNet-FPN
         xs_1 = self.ppms_pre(xs[-1])
-        # UPSAMPLE from the PPM
+        # UPSAMPLE in the PPM
         xls = [xs_1]
         for k in range(len(self.ppms)):
             xls.append(F.interpolate(self.ppms[k](xs_1), xs_1.shape[2:], mode='bilinear', align_corners=True))
-        # Merge the outputs at different scales
+        # CONCAT and CONV in the PPM
         xls = self.ppm_cat(torch.cat(xls, dim=1))
         ####################################
 
         ####################################
-        # $info is one of inputs of FAM from GGFs
+        # GGF
+        # $infos is a set of inputs of FAM from GGFs
+        # $infos[0] has a same spatial size with P4
+        # $infos[1] has a same spatial size with P3
+        # $infos[2] has a same spatial size with P2
+        # $infos[3] has a same spatial size with P1
         infos = []
         for k in range(len(self.infos)):
             infos.append(self.infos[k](F.interpolate(xls, xs[len(self.infos) - 1 - k].shape[2:], mode='bilinear', align_corners=True)))
