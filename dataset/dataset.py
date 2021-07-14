@@ -46,10 +46,12 @@ class ImageDataTest(data.Dataset):
         self.image_num = len(self.image_list)
 
     def __getitem__(self, item):
-        image, im_size = load_image_test(os.path.join(self.data_root, self.image_list[item]))
+        image, im_size = load_image_test(os.path.join(self.data_root, 'DUTS-TE-Image', self.image_list[item]))
+        label_name = ''.join([os.path.splitext(self.image_list[item])[0], '.png'])
+        label = load_sal_label(os.path.join(self.data_root, 'DUTS-TE-Mask', label_name))
         image = torch.Tensor(image)
 
-        return {'image': image, 'name': self.image_list[item % self.image_num], 'size': im_size}
+        return {'image': image, 'name': self.image_list[item % self.image_num], 'size': im_size, 'label': label}
 
     def __len__(self):
         return self.image_num

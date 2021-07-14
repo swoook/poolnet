@@ -31,18 +31,19 @@ def get_test_info(sal_mode='e'):
 def main(config):
     if config.mode == 'train':
         train_loader = get_loader(config)
+        test_loader = get_loader(config, mode='test')
         run = 0
         while os.path.exists("%s/run-%d" % (config.save_folder, run)):
             run += 1
         os.mkdir("%s/run-%d" % (config.save_folder, run))
         os.mkdir("%s/run-%d/models" % (config.save_folder, run))
         config.save_folder = "%s/run-%d" % (config.save_folder, run)
-        train = Solver(train_loader, None, config)
+        train = Solver(train_loader, test_loader, config)
         train.train()
     elif config.mode == 'test':
-        config.test_root, config.test_list = get_test_info(config.sal_mode)
+        # config.test_root, config.test_list = get_test_info(config.sal_mode)
         test_loader = get_loader(config, mode='test')
-        if not os.path.exists(config.test_fold): os.mkdir(config.test_fold)
+        # if not os.path.exists(config.test_fold): os.mkdir(config.test_fold)
         test = Solver(None, test_loader, config)
         test.test()
     else:
@@ -77,6 +78,11 @@ if __name__ == '__main__':
     parser.add_argument('--train_root', type=str, default='')
     parser.add_argument('--train_list', type=str, default='')
 
+    # Test data
+    parser.add_argument('--test_root', type=str, default='')
+    parser.add_argument('--test_list', type=str, default='')
+
+
     # Testing settings
     parser.add_argument('--model', type=str, default=None) # Snapshot
     parser.add_argument('--test_fold', type=str, default=None) # Test results saving folder
@@ -87,11 +93,6 @@ if __name__ == '__main__':
     config = parser.parse_args()
 
     if not os.path.exists(config.save_folder):
-        os.mkdir(config.save_folder)
-
-    # Get test set info
-    test_root, test_list = get_test_info(config.sal_mode)
-    config.test_root = test_root
-    config.test_list = test_list
+        os.makedirs(config.save_folder)
 
     main(config)
